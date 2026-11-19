@@ -1,0 +1,18 @@
+<!-- views/admin/edit-legal.ejs -->
+<div class="container-fluid">
+    <h1 class="h3 mb-4">Edit <%= page.slug.toUpperCase() %></h1>
+    
+    <form action="/admin/update-legal" method="POST">
+        <!-- হিডেন ফিল্ড হিসেবে স্লাগ পাঠানো হচ্ছে -->
+        <input type="hidden" name="slug" value="<%= page.slug %>">
+        
+        <div class="form-group">
+            <label>Page Content (HTML):</label>
+            <!-- এখানে চাইলে TinyMCE বা Quill এডিটর ব্যবহার করতে পারেন -->
+            <textarea name="content" class="form-control" rows="15" required><%= page.content %></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+        <a href="/admin/legal-pages" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>

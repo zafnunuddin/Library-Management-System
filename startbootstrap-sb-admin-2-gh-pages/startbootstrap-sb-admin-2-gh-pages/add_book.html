@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library LMS - Add New Book</title>
+    <!-- Custom fonts and styles from LMS Admin -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-primary text-white">
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-book-open mr-2"></i>Add New Book Details</h6>
+            </div>
+            <div class="card-body">
+                <!-- Multipart enctype is mandatory for uploading book photos later in Laravel -->
+                <form action="#" method="POST" enctype="multipart/form-data">
+                    
+                    <div class="row">
+                        <!-- Book Title -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Book Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="Enter book title" required>
+                        </div>
+                        
+                        <!-- Author Name -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Author Name</label>
+                            <input type="text" name="author" class="form-control" placeholder="Enter author name" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Edition -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label font-weight-bold text-black">Edition</label>
+                            <input type="text" name="edition" class="form-control" placeholder="e.g. 1st, 2nd, Global" required>
+                        </div>
+
+                        <!-- Genre Dropdown -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label font-weight-bold text-black">Genre / Category</label>
+                            <select name="genre" class="form-control" required>
+                                <option value="" selected disabled>Select Genre</option>
+                                <option value="Programming">Programming</option>
+                                <option value="Database">Database</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Networking">Networking</option>
+                                <option value="Fiction">Fiction</option>
+                            </select>
+                        </div>
+
+                        <!-- Quantity / Number of Books -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label font-weight-bold text-black">Number of Books (Quantity)</label>
+                            <input type="number" name="quantity" class="form-control" min="1" placeholder="Available stock count" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Past Edition Details -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Past Edition Details</label>
+                            <textarea name="past_edition" class="form-control" rows="3" placeholder="Notes on older editions..."></textarea>
+                        </div>
+
+                        <!-- New Edition Changes -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">New Edition Details</label>
+                            <textarea name="new_edition" class="form-control" rows="3" placeholder="What's new in this edition?"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Book Cover Photo Upload Row -->
+                    <div class="row align-items-center">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label font-weight-bold text-black">Upload Book Cover Photo</label>
+                            <div class="custom-file">
+                                <input type="file" name="photo" class="custom-file-input" id="bookPhoto" accept="image/*">
+                                <label class="custom-file-label" for="bookPhoto">Choose image file...</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Upload Time (Read-only display for admin reference) -->
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label font-weight-bold text-secondary">Upload Timestamp Estimation</label>
+                            <input type="text" class="form-control bg-gray-100" value="Generated automatically on save" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="text-right border-top pt-3">
+                        <a href="index.html" class="btn btn-secondary mr-2"><i class="fas fa-times mr-1"></i>Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save mr-1"></i>Save Book Details</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Required LMS Admin Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

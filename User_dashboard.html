@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Library Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        /* Permanent Dark Theme Base Styles */
+        body { background-color: #121212 !important; color: #f8f9fa !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .navbar { background-color: #0b5ed7 !important; }
+        .navbar-brand, .nav-link { color: white !important; }
+        
+        .dashboard-header { 
+            background: #1e1e1e !important; 
+            color: #f8f9fa !important; 
+            border: 1px solid #333 !important;
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
+            margin-top: 20px; 
+        }
+        
+        .book-card { 
+            transition: transform 0.2s ease, box-shadow 0.2s ease; 
+            height: 100%; 
+            border: 1px solid #333 !important; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            background: #1e1e1e !important; 
+            color: #f8f9fa !important; 
+        }
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .card-img-top { height: 220px; object-fit: cover; border-bottom: 1px solid #333; }
+        .genre-badge { position: absolute; top: 10px; right: 10px; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .new-badge { position: absolute; top: 10px; left: 10px; font-size: 0.75rem; z-index: 2; }
+        
+        /* Due Date & Fine Card Styles */
+        .due-date-card { border-left: 5px solid #dc3545; background: #1e1e1e !important; color: #f8f9fa !important; border-top: 1px solid #333; border-right: 1px solid #333; border-bottom: 1px solid #333; }
+        .due-date-safe { border-left: 5px solid #198754; background: #1e1e1e !important; color: #f8f9fa !important; border-top: 1px solid #333; border-right: 1px solid #333; border-bottom: 1px solid #333; }
+        .due-date-overdue { border-left: 5px solid #842029; background: #2c0b0e !important; color: #f8f9fa !important; border: 1px solid #ea868f !important; }
+
+        .text-muted { color: #adb5bd !important; }
+        .table { color: #f8f9fa !important; }
+        
+        /* Student Profile Widget Style */
+        .student-profile-badge {
+            background-color: #1a1d20;
+            border: 1px solid #333;
+            padding: 5px 12px;
+            border-radius: 50rem;
+            display: flex;
+            align-items: center;
+        }
+        .student-avatar {
+            width: 38px;
+            height: 38px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #0d6efd;
+            background-color: #ffffff;
+        }
+
+        /* --- Custom Payment System Styles --- */
+        :root {
+            --payment-field: #26262a;
+            --payment-border: #3a3a40;
+            --bkash: #e2136e;
+            --nagad: #f02c2c;
+            --primary: #1a73e8;
+        }
+        .payment-methods { display: flex; flex-direction: row; gap: 16px; margin-bottom: 16px; width: 100%; }
+        .payment-method { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; background: #232327; border: 1px solid var(--payment-border); border-radius: 12px; color: #f8f9fa; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.15s; }
+        .payment-method img { height: 28px; width: auto; object-fit: contain; }
+        .payment-method[aria-pressed="true"][data-id="bkash"] { border-color: var(--bkash); background: rgba(226,19,110,0.12); box-shadow: 0 0 18px -6px var(--bkash); }
+        .payment-method[aria-pressed="true"][data-id="nagad"] { border-color: var(--nagad); background: rgba(240,44,44,0.12); box-shadow: 0 0 18px -6px var(--nagad); }
+        .payment-label { display: block; color: #a1a1aa; font-size: 14px; margin: 16px 0 8px; font-weight: 500;}
+        .payment-input { width: 100%; height: 48px; padding: 0 14px; font-size: 16px; color: #f8f9fa; background: var(--payment-field); border: 1px solid var(--payment-border); border-radius: 8px; outline: none; }
+        .payment-input:focus { border-color: var(--primary); }
+        .payment-input::placeholder { color: #7c7c85; }
+        .payment-input[readonly] { opacity: 0.75; cursor: not-allowed; }
+        .payment-phone { display: flex; gap: 8px; }
+        .payment-prefix { display: flex; align-items: center; padding: 0 16px; font-weight: 600; color: #a1a1aa; background: var(--payment-field); border: 1px solid var(--payment-border); border-radius: 8px; }
+        .payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .payment-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid var(--payment-border); padding-top: 20px; }
+        @media(max-width:520px) { .payment-row { grid-template-columns: 1fr; } }
+
+        /* --- Book Page Preview Styles --- */
+        .book-page-frame {
+            background: linear-gradient(180deg, #f8f4e8 0%, #efe6cf 100%);
+            color: #2a2a2a;
+            border: 3px double #a9895f;
+            border-radius: 6px;
+            padding: 26px 24px 20px;
+            position: relative;
+            min-height: 260px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4), inset 0 0 0 6px rgba(255,255,255,0.35);
+        }
+        .book-page-frame::before, .book-page-frame::after {
+            content: ""; position: absolute; width: 16px; height: 16px; border: 2px solid #a9895f;
+        }
+        .book-page-frame::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+        .book-page-frame::after { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+        .book-page-corner-tr { position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; border: 2px solid #a9895f; border-left: none; border-bottom: none; }
+        .book-page-corner-bl { position: absolute; bottom: 6px; left: 6px; width: 16px; height: 16px; border: 2px solid #a9895f; border-right: none; border-top: none; }
+        .book-page-eyebrow { text-align: center; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8a6d3b; font-weight: 700; margin-bottom: 6px; }
+        .book-page-title { text-align: center; font-weight: 800; font-size: 1.05rem; color: #1f2937; margin-bottom: 4px; }
+        .book-page-rule { width: 70px; height: 2px; background: #a9895f; margin: 8px auto 16px; }
+        .book-page-body { font-size: 0.92rem; line-height: 1.6; color: #3a3a3a; text-align: justify; }
+        .book-page-footer { text-align: center; margin-top: 16px; font-size: 0.75rem; color: #8a6d3b; font-style: italic; }
+
+        .book-cover-page {
+            position: relative;
+            min-height: 280px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+            border: 3px double #a9895f;
+        }
+        .book-cover-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.85) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 22px;
+            color: #ffffff;
+        }
+        .book-cover-badge {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            backdrop-filter: blur(2px);
+        }
+        .book-cover-title { font-weight: 800; font-size: 1.35rem; margin-bottom: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+        .book-cover-author { font-size: 0.88rem; opacity: 0.9; margin-bottom: 10px; }
+        .book-cover-edition {
+            align-self: flex-start;
+            font-size: 0.72rem;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* --- High Contrast Light Theme --- */
+        body.light-mode { background-color: #f4f6f9 !important; color: #212529 !important; }
+        body.light-mode .dashboard-header { background: #ffffff !important; color: #212529 !important; border-color: #dee2e6 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; }
+        body.light-mode .book-card { background: #ffffff !important; color: #212529 !important; border-color: #dee2e6 !important; }
+        body.light-mode .book-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        body.light-mode .text-muted, body.light-mode .text-white-50 { color: #6c757d !important; }
+        
+        body.light-mode .table, 
+        body.light-mode .table-dark {
+            --bs-table-bg: #ffffff;
+            --bs-table-striped-bg: #f8f9fa;
+            --bs-table-color: #212529;
+            color: #212529 !important;
+            border-color: #dee2e6 !important;
+            background-color: transparent !important;
+        }
+        body.light-mode .table-dark th,
+        body.light-mode .table-dark td { color: #212529 !important; border-color: #dee2e6 !important; background-color: transparent !important; }
+        
+        body.light-mode .bg-dark, body.light-mode .bg-black { background-color: #ffffff !important; color: #212529 !important; border-color: #dee2e6 !important; }
+        body.light-mode .text-light, body.light-mode .text-white { color: #212529 !important; }
+        body.light-mode .navbar .text-white, body.light-mode .navbar .nav-link { color: #ffffff !important; }
+        body.light-mode .nav-pills .nav-link:not(.active) { color: #495057 !important; }
+        body.light-mode .text-warning { color: #d97706 !important; }
+        body.light-mode .text-info { color: #0284c7 !important; }
+        
+        body.light-mode .due-date-card { background: #ffffff !important; border-color: #dee2e6 !important; border-left-color: #dc3545 !important; color: #212529 !important; }
+        body.light-mode .due-date-safe { background: #ffffff !important; border-color: #dee2e6 !important; border-left-color: #198754 !important; color: #212529 !important; }
+        body.light-mode .due-date-overdue { background: #fff5f5 !important; border-color: #dc3545 !important; border-left-color: #dc3545 !important; color: #212529 !important; }
+        
+        body.light-mode .modal-content { background-color: #ffffff !important; color: #212529 !important; }
+        body.light-mode .btn-close-white { filter: invert(1) grayscale(100%) brightness(200%) !important; }
+        body.light-mode .accordion-button { background-color: #f8f9fa !important; color: #212529 !important; border-color: #dee2e6 !important;}
+        body.light-mode .accordion-button:not(.collapsed) { background-color: #e9ecef !important; }
+        body.light-mode .alert-warning.bg-dark { background-color: #fff3cd !important; color: #664d03 !important; border-color: #ffecb5 !important; }
+        body.light-mode .alert-secondary.bg-black { background-color: #f8f9fa !important; color: #212529 !important; border-color: #dee2e6 !important; }
+        
+        body.light-mode .payment-method { background-color: #f8f9fa !important; color: #212529 !important; border-color: #dee2e6 !important; }
+        body.light-mode .payment-input { background-color: #ffffff !important; color: #212529 !important; border-color: #ced4da !important; }
+        body.light-mode .payment-prefix { background-color: #e9ecef !important; color: #495057 !important; border-color: #ced4da !important; }
+        body.light-mode .payment-label { color: #495057 !important; }
+        
+        body.light-mode .book-page-frame { box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 6px rgba(255,255,255,0.7); }
+        body.light-mode .form-control.bg-dark { background-color: #ffffff !important; color: #212529 !important; border-color: #dee2e6 !important; }
+        body.light-mode .form-control.bg-dark::placeholder { color: #8a8a92 !important; }
+        body.light-mode .btn-outline-light { color: #212529; border-color: #dee2e6; }
+        body.light-mode .btn-outline-light:hover { background-color: #e9ecef; color: #212529; border-color: #dee2e6; }
+        body.light-mode .student-profile-badge { background-color: #f2f3f6 !important; border: 1px solid #e2e4e8 !important; }
+    </style>
+</head>
+<body style="background-image: url('public/images/Background.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat; background-attachment: fixed; background-color: #121212;">
+
+    <nav class="navbar navbar-expand-lg sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <img src="public/images/Logo.jpeg" alt="LMS EDU Logo" style="width:32px;height:32px;object-fit:contain;border-radius:6px;margin-right:8px;">
+                LMS Student Panel
+            </a>
+            <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link active fw-bold" href="#">Dashboard</a></li>
+                    
+                    <!-- Profile Widget -->
+                    <li class="nav-item ms-3">
+                        <div class="student-profile-badge text-light">
+                            <img src="https://cdn.icon-icons.com/icons2/3745/PNG/512/profile_user_avatar_people_icon_231924.png" alt="Student" class="student-avatar" onerror="this.src='https://www.gravatar.com/avatar/?d=mp&s=200';">
+                            <div class="ms-2 lh-sm">
+                                <div class="fw-bold" style="font-size: 0.8rem;">Al Amin Shawon</div>
+                                <div class="text-white-50" style="font-size: 0.68rem;">242015712</div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Theme Toggle Button -->
+                    <li class="nav-item ms-3">
+                        <button type="button" id="themeToggleBtn" class="btn btn-outline-light btn-sm" title="Toggle light / dark theme">
+                            <i class="bi bi-sun-fill"></i>
+                        </button>
+                    </li>
+
+                    <li class="nav-item"><a class="btn btn-danger btn-sm ms-3" href="#">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        
+        <!-- Navigation Tabs -->
+        <div class="dashboard-header mb-4 py-3">
+            <ul class="nav nav-pills gap-2 flex-wrap" id="dashboardTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold px-3 py-2" id="catalog-tab" data-bs-toggle="pill" data-bs-target="#catalog-section" type="button" role="tab">
+                        <i class="bi bi-grid-fill me-1"></i> Browse Library Catalog
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-3 py-2 position-relative" id="issued-tab" data-bs-toggle="pill" data-bs-target="#issued-section" type="button" role="tab">
+                        <i class="bi bi-journal-bookmark-fill me-1"></i> Issued Books & Pay
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-3 py-2" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending-section" type="button" role="tab">
+                        <i class="bi bi-clock-history me-1"></i> Pending Request <span class="badge bg-secondary ms-1">0</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-3 py-2" id="history-tab" data-bs-toggle="pill" data-bs-target="#history-section" type="button" role="tab">
+                        <i class="bi bi-archive-fill me-1"></i> Request History
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-3 py-2" id="rules-tab" data-bs-toggle="pill" data-bs-target="#rules-section" type="button" role="tab">
+                        <i class="bi bi-shield-check me-1"></i> Rules & Guidelines
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" id="dashboardTabContent">
+            
+            <!-- 1. BROWSE LIBRARY CATALOG SECTION -->
+            <div class="tab-pane fade show active" id="catalog-section" role="tabpanel">
+                <div class="dashboard-header mb-4 bg-primary bg-opacity-10 border border-primary border-opacity-25">
+                    <h4 class="fw-bold text-primary"><i class="bi bi-search"></i> Extensive Book Search</h4>
+                    <p class="text-muted small">Search by Title, Author, or Genre.</p>
+                    <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm bg-dark text-light border-secondary" placeholder="Type here to search (e.g., 'Operating System', 'Statistics', 'Contract Law')...">
+                </div>
+
+                <!-- New Collection Section -->
+                <div class="mb-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold m-0"><i class="bi bi-stars text-warning me-1"></i> New Collection</h4>
+                        <span class="badge bg-warning text-dark">Latest Additions</span>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        <div class="col book-item">
+                            <div class="card book-card shadow-sm position-relative">
+                                <span class="badge bg-danger new-badge">NEW</span>
+                                <span class="badge bg-primary genre-badge">Statistics</span>
+                                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title fw-bold book-title">Intro to Mathematical Statistics</h6>
+                                    <small class="text-muted mb-2 book-author">Robert V. Hogg</small>
+                                    <div class="mt-auto">
+                                        <p class="text-success small fw-bold mb-2">Qty: 6 Available</p>
+                                        <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="stat-1">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col book-item">
+                            <div class="card book-card shadow-sm position-relative">
+                                <span class="badge bg-danger new-badge">NEW</span>
+                                <span class="badge bg-info text-dark genre-badge">Programming</span>
+                                <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title fw-bold book-title">Data Structures in C++</h6>
+                                    <small class="text-muted mb-2 book-author">D.S. Malik</small>
+                                    <div class="mt-auto">
+                                        <p class="text-danger small fw-bold mb-2">Qty: 0 (Out of Stock)</p>
+                                        <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="ds-cpp">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Catalog -->
+                <h4 class="fw-bold mb-3 mt-4">Available Catalog</h4>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" id="bookGrid">
+                    
+                    <!-- CS Books -->
+                    <div class="col book-item" data-subject="cse">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-primary genre-badge">CSE</span>
+                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Operating System Concepts</h6>
+                                <small class="text-muted mb-2 book-author">Abraham Silberschatz</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 5 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="os-concepts">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="cse">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-primary genre-badge">CSE</span>
+                            <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Data Structures in C++</h6>
+                                <small class="text-muted mb-2 book-author">D.S. Malik</small>
+                                <div class="mt-auto">
+                                    <p class="text-danger small fw-bold mb-2">Qty: 0 (Out of Stock)</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="ds-cpp">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="cse">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-primary genre-badge">CSE</span>
+                            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Clean Code</h6>
+                                <small class="text-muted mb-2 book-author">Robert C. Martin</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 2 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="clean-code">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="cse">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-primary genre-badge">CSE</span>
+                            <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Artificial Intelligence</h6>
+                                <small class="text-muted mb-2 book-author">Peter Norvig</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 4 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="ai-book">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BBA Books -->
+                    <div class="col book-item" data-subject="bba">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-success genre-badge">BBA</span>
+                            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Principles of Management</h6>
+                                <small class="text-muted mb-2 book-author">Harold Koontz</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 6 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="mgmt">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="bba">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-success genre-badge">BBA</span>
+                            <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Marketing Management</h6>
+                                <small class="text-muted mb-2 book-author">Philip Kotler</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 4 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="marketing">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="bba">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-success genre-badge">BBA</span>
+                            <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Financial Accounting</h6>
+                                <small class="text-muted mb-2 book-author">Jerry Weygandt</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 3 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="accounting">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="bba">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-success genre-badge">BBA</span>
+                            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Organizational Behavior</h6>
+                                <small class="text-muted mb-2 book-author">Stephen Robbins</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 5 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="org-behavior">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Books -->
+                    <div class="col book-item" data-subject="statistics">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-info text-dark genre-badge">Statistics</span>
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Intro to Mathematical Statistics</h6>
+                                <small class="text-muted mb-2 book-author">Robert V. Hogg</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 6 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="stat-1">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="statistics">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-info text-dark genre-badge">Statistics</span>
+                            <img src="https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Applied Multivariate Analysis</h6>
+                                <small class="text-muted mb-2 book-author">Richard A. Johnson</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 3 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="stat-2">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="statistics">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-info text-dark genre-badge">Statistics</span>
+                            <img src="https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Elements of Statistical Learning</h6>
+                                <small class="text-muted mb-2 book-author">Trevor Hastie</small>
+                                <div class="mt-auto">
+                                    <p class="text-danger small fw-bold mb-2">Qty: 0 (Out of Stock)</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="stat-3">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="statistics">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-info text-dark genre-badge">Statistics</span>
+                            <img src="https://images.unsplash.com/photo-1543286386-2e659306cd6c?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Probability for Engineering</h6>
+                                <small class="text-muted mb-2 book-author">Jay L. Devore</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 8 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="stat-4">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Distinct Law Books -->
+                    <div class="col book-item" data-subject="law">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-warning text-dark genre-badge">Law</span>
+                            <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Jurisprudence / Legal Theory</h6>
+                                <small class="text-muted mb-2 book-author">Prof. Richard Hale</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 4 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="jurisprudence">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="law">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-warning text-dark genre-badge">Law</span>
+                            <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Contract Law</h6>
+                                <small class="text-muted mb-2 book-author">Dr. Alan Whitmore</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 5 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="contract-law">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="law">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-warning text-dark genre-badge">Law</span>
+                            <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Criminal and Family Law</h6>
+                                <small class="text-muted mb-2 book-author">Justice Meera Kapoor (Retd.)</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 3 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="criminal-family-law">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col book-item" data-subject="law">
+                        <div class="card book-card shadow-sm">
+                            <span class="badge bg-warning text-dark genre-badge">Law</span>
+                            <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=300&fit=crop" class="card-img-top" alt="Cover">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold book-title">Constitutional and General Law</h6>
+                                <small class="text-muted mb-2 book-author">Prof. Nathaniel Cross</small>
+                                <div class="mt-auto">
+                                    <p class="text-success small fw-bold mb-2">Qty: 6 Available</p>
+                                    <button class="btn btn-outline-primary btn-sm w-100 view-details-btn" data-bs-toggle="modal" data-bs-target="#bookDetailsModal" data-book-id="constitutional-law">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- 2. ISSUED BOOKS SECTION -->
+            <div class="tab-pane fade" id="issued-section" role="tabpanel">
+                <div class="dashboard-header mb-4">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-journal-bookmark-fill text-primary"></i> Issued Books & Fine Details</h4>
+                    <p class="text-muted small mb-4">Active tracking, late calculation guidelines, and fee assessment summary.</p>
+                    
+                    <div class="row g-3">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="p-3 shadow-sm rounded due-date-card d-flex flex-column justify-content-between h-100">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-primary">Issued Book</span>
+                                        <span class="badge bg-warning text-dark">Due Soon</span>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Operating System Concepts</h6>
+                                    <small class="text-muted">Issued: 15 Jun, 2026</small><br>
+                                    <small class="text-muted">Due Date: 30 Jun, 2026</small>
+                                </div>
+                                <hr class="border-secondary my-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="small text-muted">Remaining:</span> <strong class="text-warning">1 Day</strong>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="small text-muted">Fine:</span> <strong class="text-success">0 Tk</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+                            <div class="p-3 shadow-sm rounded due-date-safe d-flex flex-column justify-content-between h-100">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-success">Issued Book</span>
+                                        <span class="badge bg-success">Active / Safe</span>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Artificial Intelligence</h6>
+                                    <small class="text-muted">Issued: 25 Jun, 2026</small><br>
+                                    <small class="text-muted">Due Date: 10 Jul, 2026</small>
+                                </div>
+                                <hr class="border-secondary my-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="small text-muted">Remaining:</span> <strong class="text-success">11 Days</strong>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="small text-muted">Fine:</span> <strong class="text-success">0 Tk</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-12">
+                            <div class="p-3 shadow-sm rounded due-date-overdue d-flex flex-column justify-content-between h-100">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-danger">Issued Book</span>
+                                        <span class="badge bg-dark text-danger border border-danger">Overdue</span>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Data Structures in C++</h6>
+                                    <small class="text-muted">Issued: 01 Jun, 2026</small><br>
+                                    <small class="text-muted">Due Date: 15 Jun, 2026</small>
+                                </div>
+                                <hr class="border-secondary my-2">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <span class="small text-muted">Late Days:</span> <strong class="text-danger">15 Days</strong>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="small text-muted">Fine Amount:</span> <strong class="text-danger fs-5">75 Tk</strong>
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger btn-sm w-100 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                                    Pay Fine Online
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. PENDING REQUEST SECTION -->
+            <div class="tab-pane fade" id="pending-section" role="tabpanel">
+                <div class="dashboard-header mb-4">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-clock-history text-warning"></i> Pending Book Requests</h4>
+                    <div class="alert alert-warning bg-dark text-light border-warning mb-0" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i> You have no pending borrow requests at the moment. When you request a book from the catalog, it will appear here as "Request Pending" until approved by the librarian.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. REQUEST HISTORY SECTION -->
+            <div class="tab-pane fade" id="history-section" role="tabpanel">
+                <div class="dashboard-header mb-4">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-archive-fill text-secondary"></i> Request History</h4>
+
+                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-journal-check me-1"></i> Currently Borrowed Books</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-dark table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Book Title</th>
+                                    <th>Issued Date</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Operating System Concepts</td>
+                                    <td>15 Jun, 2026</td>
+                                    <td>30 Jun, 2026</td>
+                                    <td><span class="badge bg-warning text-dark">Due Soon</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Artificial Intelligence</td>
+                                    <td>25 Jun, 2026</td>
+                                    <td>10 Jul, 2026</td>
+                                    <td><span class="badge bg-success">Active / Safe</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Data Structures in C++</td>
+                                    <td>01 Jun, 2026</td>
+                                    <td>15 Jun, 2026</td>
+                                    <td><span class="badge bg-danger">Overdue</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-bold text-info mb-2"><i class="bi bi-clock-history me-1"></i> Previously Borrowed Books</h6>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Book Title</th>
+                                    <th>Borrowed Date</th>
+                                    <th>Returned Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Clean Code</td>
+                                    <td>02 Feb, 2026</td>
+                                    <td>16 Feb, 2026</td>
+                                    <td><span class="badge bg-secondary">Returned</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Intro to Mathematical Statistics</td>
+                                    <td>10 Mar, 2026</td>
+                                    <td>24 Mar, 2026</td>
+                                    <td><span class="badge bg-secondary">Returned</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Principles of Management</td>
+                                    <td>05 Apr, 2026</td>
+                                    <td>19 Apr, 2026</td>
+                                    <td><span class="badge bg-secondary">Returned</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Contract Law</td>
+                                    <td>28 Apr, 2026</td>
+                                    <td>12 May, 2026</td>
+                                    <td><span class="badge bg-secondary">Returned</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. LIBRARY RULES & FINE POLICY SECTION -->
+            <div class="tab-pane fade" id="rules-section" role="tabpanel">
+                <div class="dashboard-header mb-4">
+                    <h4 class="fw-bold mb-3 text-warning"><i class="bi bi-shield-check"></i> Library Fine Calculation Guidelines & Regulations</h4>
+                    <p class="text-muted small">Detailed policy guidelines on how overdue fines are calculated and enforced.</p>
+
+                    <div class="card bg-dark border-secondary mb-4">
+                        <div class="card-header bg-secondary bg-opacity-25 fw-bold">Fine Calculation Policy Guidelines</div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive m-0">
+                                <table class="table table-dark table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Condition / Violation</th>
+                                            <th>Fine Calculation / Action Rule</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1–30 Days Overdue</td>
+                                            <td><span class="text-warning fw-bold">Tk 5 per day</span> calculated automatically from due date.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>More than 30 Days Overdue</td>
+                                            <td><span class="text-danger fw-bold">Temporary Library Suspension</span> until dues are cleared.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Lost Book</td>
+                                            <td><span class="text-danger fw-bold">Replacement Cost + Tk 500 Processing Fee</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Damaged Book</td>
+                                            <td><span class="text-danger fw-bold">Replacement Cost + Tk 500 Processing Fee</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3">Library Rules & Regulations</h5>
+                    <div class="accordion" id="rulesAccordion">
+                        <div class="accordion-item bg-dark text-light border-secondary">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button bg-dark text-light border-secondary shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    1. Book Return & Due Dates
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#rulesAccordion">
+                                <div class="accordion-body text-muted">
+                                    Students must return borrowed books before the due date. Late returns incur a daily penalty fee.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item bg-dark text-light border-secondary">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed bg-dark text-light border-secondary shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    2. Suspension & Fee Payment Policy
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
+                                <div class="accordion-body text-muted">
+                                    Exceeding 30 overdue days results in temporary suspension. Fines must be paid to the administrative desk or via the online payment gateway.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div> 
+
+    <!-- BOOK DETAILS & PREVIEW MODAL -->
+    <div class="modal fade" id="bookDetailsModal" tabindex="1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-info-circle text-primary me-2"></i> Book Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <div class="col-md-3 text-center">
+                            <img id="modalBookCover" src="" class="img-fluid rounded border border-secondary mb-3" alt="Book Cover" style="height: 250px; width: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop';">
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary btn-sm fw-bold" id="requestBorrowBtn">Request to Borrow</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-9">
+                            <h4 class="fw-bold mb-1" id="modalBookTitle">Operating System Concepts</h4>
+                            <p class="text-muted small mb-3">By <span id="modalBookAuthor">Abraham Silberschatz</span></p>
+                            
+                            <div class="row g-2 small mb-3">
+                                <div class="col-md-4 col-6"><strong>Serial No:</strong> <span id="modalSerialNo">CSE-BK-101</span></div>
+                                <div class="col-md-4 col-6"><strong>ISBN:</strong> <span id="modalIsbn">978-1-118-06333-0</span></div>
+                                <div class="col-md-4 col-6"><strong>Edition:</strong> <span id="modalEdition">7th Edition</span></div>
+                                <div class="col-md-4 col-6"><strong>Publication Year:</strong> <span id="modalYear">2024</span></div>
+                                <div class="col-md-4 col-6"><strong>Publisher:</strong> <span id="modalPublisher">Wiley</span></div>
+                                <div class="col-md-4 col-6"><strong>Language:</strong> <span id="modalLanguage">English</span></div>
+                                <div class="col-md-4 col-6"><strong>Genre:</strong> <span id="modalGenre">Computer Science</span></div>
+                                <div class="col-md-4 col-6"><strong>Shelf Location:</strong> <span id="modalShelf">Shelf 4, Row B</span></div>
+                                <div class="col-md-4 col-6"><strong>Total Copies:</strong> <span id="modalTotalCopies">5</span></div>
+                                <div class="col-md-4 col-6"><strong class="text-success">Available Copies:</strong> <span id="modalAvailableCopies">5</span></div>
+                                <div class="col-12"><strong class="text-info">Status:</strong> <span id="modalStatus">Available for Issue</span></div>
+                            </div>
+
+                            <p class="small text-muted mb-3"><strong>Book Abstract:</strong> <span id="modalAbstract">Comprehensive study of operating system principles, process synchronization, memory management, and file systems architecture.</span></p>
+                            
+                            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-list-nested me-1"></i> Table of Contents (Chapters & Topics)</h6>
+                            <div class="p-3 bg-black bg-opacity-25 rounded border border-secondary small mb-0">
+                                <ul class="mb-0 ps-3" id="modalToc">
+                                    <li><strong>Chapter 1:</strong> Introduction to Operating Systems (System Structures, Operations)</li>
+                                    <li><strong>Chapter 2:</strong> System Calls & Structure</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <div class="card bg-transparent border-0">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold text-primary m-0"><i class="bi bi-book me-1"></i> Sample Book Preview</h5>
+                            <span class="badge bg-secondary rounded" id="previewPageIndicator">Page 1</span>
+                        </div>
+                        
+                        <div class="card border border-secondary bg-black" style="border-radius: 8px;">
+                            <div class="card-body d-flex flex-column justify-content-center p-3" style="min-height: 280px;" id="previewContentContainer">
+                                <div class="book-page-frame">
+                                    <div class="book-page-eyebrow">Preface</div>
+                                    <div class="book-page-title">Welcome to the Book</div>
+                                    <div class="book-page-rule"></div>
+                                    <div class="book-page-body">Loading preview...</div>
+                                    <div class="book-page-footer">Page 1</div>
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center pb-3 pt-0">
+                                <button class="btn btn-outline-light btn-sm px-3" id="prevPageBtn" disabled>
+                                    <i class="bi bi-chevron-left"></i> Previous Page
+                                </button>
+                                <button class="btn btn-outline-light btn-sm px-3" id="nextPageBtn">
+                                    Next Page <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end mt-3 border-top border-secondary pt-3">
+                            <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONLINE PAYMENT MODAL -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary" style="border-radius: 12px; border-color: #444 !important;">
+                <div class="modal-header border-secondary" style="border-bottom-color: #333 !important;">
+                    <h5 class="modal-title fw-bold text-success"><i class="bi bi-credit-card me-2"></i> Select Payment Method</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+
+                    <form id="lmsPaymentForm" onsubmit="processPayment(event)">
+                        <div class="payment-methods">
+                            <!-- OFFICIAL WIKIMEDIA BKASH LOGO URL -->
+                            <button type="button" class="payment-method" data-id="bkash" aria-pressed="false" onclick="selectPaymentMethod('bkash')">
+                                <div style="background-color: #ffffff; padding: 4px 12px; border-radius: 6px; margin-bottom: 5px;">
+                                    <img src="https://primepng.com/images/all_img/1770827249_bkash-icon-png.png" alt="bKash Logo">
+                                </div>
+                                bKash
+                            </button>
+                            <button type="button" class="payment-method" data-id="nagad" aria-pressed="true" onclick="selectPaymentMethod('nagad')">
+                                <div style="background-color: #ffffff; padding: 4px 12px; border-radius: 6px; margin-bottom: 5px;">
+                                    <img src="https://download.logo.wine/logo/Nagad/Nagad-Vertical-Logo.wine.png" alt="Nagad Logo">
+                                </div>
+                                Nagad
+                            </button>
+                        </div>
+
+                        <label class="payment-label" for="merchant">Library Merchant Number</label>
+                        <input class="payment-input" id="merchant" readonly value="01600-654321 (Nagad Merchant)" />
+
+                        <label class="payment-label" for="mobile">Student Mobile Number</label>
+                        <div class="payment-phone">
+                            <span class="payment-prefix">+880</span>
+                            <input class="payment-input" id="mobile" inputmode="numeric" maxlength="10" value="1712345678" />
+                        </div>
+
+                        <div class="payment-row">
+                            <div>
+                                <label class="payment-label" for="amount">Amount (Tk)</label>
+                                <input class="payment-input" id="amount" type="number" inputmode="numeric" placeholder="Enter amount" />
+                            </div>
+                            <div>
+                                <label class="payment-label" for="pin">PIN</label>
+                                <input class="payment-input" id="pin" type="password" inputmode="numeric" maxlength="5" placeholder="Enter PIN" />
+                            </div>
+                        </div>
+
+                        <div class="payment-actions">
+                            <button type="button" class="btn btn-secondary" style="background-color: #6c757d; border:none;" data-bs-dismiss="modal" onclick="document.getElementById('pin').value=''; document.getElementById('amount').value='';">Cancel</button>
+                            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" style="background-color: #0d6efd; border:none;">Confirm Payment
+                                <i class="bi bi-arrow-right-circle"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // --- Light / Dark Theme Toggle ---
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeToggleBtn.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+                themeToggleBtn.title = 'Switch to dark theme';
+            } else {
+                document.body.classList.remove('light-mode');
+                themeToggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                themeToggleBtn.title = 'Switch to light theme';
+            }
+        }
+
+        let savedTheme = 'dark';
+        try {
+            savedTheme = localStorage.getItem('lms-theme') || 'dark';
+        } catch (e) { /* localStorage unavailable */ }
+        applyTheme(savedTheme);
+
+        themeToggleBtn.addEventListener('click', function () {
+            const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            applyTheme(next);
+            try { localStorage.setItem('lms-theme', next); } catch (e) { /* ignore */ }
+        });
+
+        // --- Search Filter Logic ---
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let bookItems = document.querySelectorAll('.book-item');
+
+            bookItems.forEach(function(item) {
+                let title = item.querySelector('.book-title').innerText.toLowerCase();
+                let author = item.querySelector('.book-author').innerText.toLowerCase();
+                let genre = item.querySelector('.genre-badge').innerText.toLowerCase();
+
+                if (title.includes(filter) || author.includes(filter) || genre.includes(filter)) {
+                    item.style.display = "";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        });
+
+        // --- Book Data Model ---
+        function escapeXml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&apos;");
+        }
+
+        const libraryBooks = {
+            "stat-1": {
+                title: "Intro to Mathematical Statistics", author: "Robert V. Hogg", cover: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop",
+                serial: "STAT-BK-501", isbn: "978-0-13-468699-8", edition: "8th Edition", year: "2018", publisher: "Pearson",
+                language: "English", genre: "Statistics", shelf: "Shelf 7, Row A", total: 6, available: 6, status: "Available for Issue",
+                abstract: "A comprehensive introduction to mathematical statistics, offering a solid background in probability theory and statistical inference.",
+                toc: ["Probability and Distributions", "Multivariate Distributions", "Some Special Distributions", "Some Elementary Statistical Inferences", "Consistency and Limiting Distributions"],
+                pages: [
+                    { eyebrow: "Cover", title: "Intro to Math Stats — 8th Edition", body: "An essential textbook for university-level mathematical statistics." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition emphasizes the mathematical theory behind modern statistical methods." },
+                    { eyebrow: "Chapter 1", title: "Probability", body: "Probability theory forms the foundation of all statistical inference." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Define a random variable.\n2. Explain the Central Limit Theorem.\n3. What is the difference between a PDF and a CDF?" }
+                ]
+            },
+            "stat-2": {
+                title: "Applied Multivariate Analysis", author: "Richard A. Johnson", cover: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=300&fit=crop",
+                serial: "STAT-BK-502", isbn: "978-0-13-187715-3", edition: "6th Edition", year: "2007", publisher: "Pearson",
+                language: "English", genre: "Statistics", shelf: "Shelf 7, Row B", total: 3, available: 1, status: "Available for Issue",
+                abstract: "Focuses on the practical application of multivariate statistical methods to real-world data.",
+                toc: ["Aspects of Multivariate Analysis", "Matrix Algebra and Random Vectors", "Sample Geometry and Random Sampling", "The Multivariate Normal Distribution", "Inferences about a Mean Vector"],
+                pages: [
+                    { eyebrow: "Cover", title: "Applied Multivariate Analysis", body: "Practical techniques for analyzing complex, multi-dimensional data sets." },
+                    { eyebrow: "Preface", title: "About This Book", body: "We focus on applications rather than rigorous proofs, using real data examples." },
+                    { eyebrow: "Chapter 2", title: "Matrix Algebra", body: "Matrix operations are crucial for handling multivariate data efficiently." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. What is an eigenvalue?\n2. How do you calculate the covariance matrix?\n3. Define singular value decomposition." }
+                ]
+            },
+            "stat-3": {
+                title: "Elements of Statistical Learning", author: "Trevor Hastie", cover: "https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?w=400&h=300&fit=crop",
+                serial: "STAT-BK-503", isbn: "978-0-387-84857-0", edition: "2nd Edition", year: "2009", publisher: "Springer",
+                language: "English", genre: "Statistics", shelf: "Shelf 7, Row C", total: 5, available: 0, status: "Out of Stock",
+                abstract: "A landmark text covering advanced machine learning and statistical modeling concepts, heavily used in data science.",
+                toc: ["Supervised Learning", "Linear Methods for Regression", "Linear Methods for Classification", "Basis Expansions and Regularization", "Kernel Smoothing Methods"],
+                pages: [
+                    { eyebrow: "Cover", title: "The Elements of Statistical Learning", body: "The premier reference for machine learning, data mining, and predictive analytics." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This book provides a statistical framework for understanding the field of machine learning." },
+                    { eyebrow: "Chapter 3", title: "Linear Regression", body: "Linear models remain fundamental despite the advent of complex non-linear techniques." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Explain the bias-variance tradeoff.\n2. What is Ridge regression?\n3. Describe cross-validation." }
+                ]
+            },
+            "stat-4": {
+                title: "Probability for Engineering", author: "Jay L. Devore", cover: "https://images.unsplash.com/photo-1543286386-2e659306cd6c?w=400&h=300&fit=crop",
+                serial: "STAT-BK-504", isbn: "978-1-305-25180-9", edition: "9th Edition", year: "2015", publisher: "Cengage",
+                language: "English", genre: "Statistics", shelf: "Shelf 7, Row D", total: 8, available: 8, status: "Available for Issue",
+                abstract: "A comprehensive book tailored for engineering and science majors, featuring practical datasets and industry examples.",
+                toc: ["Overview and Descriptive Statistics", "Probability", "Discrete Random Variables", "Continuous Random Variables", "Joint Probability Distributions"],
+                pages: [
+                    { eyebrow: "Cover", title: "Probability & Stats for Engineering", body: "Statistical techniques applied to engineering processes and quality control." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This text uses real-world engineering problems to motivate statistical theory." },
+                    { eyebrow: "Chapter 1", title: "Descriptive Statistics", body: "Before formal inference, data must be summarized effectively using sample metrics." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Define sample variance.\n2. Give an example of a discrete random variable.\n3. How is a boxplot constructed?" }
+                ]
+            },
+            "jurisprudence": {
+                title: "Jurisprudence / Legal Theory", author: "Prof. Richard Hale", cover: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=300&fit=crop",
+                serial: "LAW-BK-401", isbn: "978-0-19-876543-2", edition: "6th Edition", year: "2023", publisher: "Oxford University Press",
+                language: "English", genre: "Law", shelf: "Shelf 9, Row A", total: 4, available: 4, status: "Available for Issue",
+                abstract: "Explores the nature, sources and purpose of law, surveying major schools of legal thought from natural law to legal positivism and legal realism.",
+                toc: ["Nature and Sources of Law", "Natural Law Theory", "Legal Positivism", "Legal Realism and Sociological Jurisprudence", "Rights, Justice and the Rule of Law"],
+                pages: [
+                    { eyebrow: "Cover", title: "Jurisprudence / Legal Theory — 6th Edition", body: "An introduction to the philosophical foundations of law, examining competing theories of what law is and why it binds us." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition surveys the major schools of jurisprudence, from classical natural law through to contemporary critical legal theory, encouraging students to question the assumptions behind legal systems." },
+                    { eyebrow: "Chapter 3", title: "Legal Positivism", body: "Legal positivism holds that the validity of a law depends on its source rather than its moral merit, separating the question of what the law is from what the law ought to be." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Contrast natural law theory with legal positivism.\n2. What did legal realists argue about how judges actually decide cases?\n3. Explain Hart's concept of the 'rule of recognition'." }
+                ]
+            },
+            "contract-law": {
+                title: "Contract Law", author: "Dr. Alan Whitmore", cover: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=400&h=300&fit=crop",
+                serial: "LAW-BK-402", isbn: "978-1-4058-9871-3", edition: "9th Edition", year: "2024", publisher: "Sweet & Maxwell",
+                language: "English", genre: "Law", shelf: "Shelf 9, Row B", total: 5, available: 5, status: "Available for Issue",
+                abstract: "Covers the formation, terms, breach and remedies of contracts, including offer, acceptance, consideration and discharge.",
+                toc: ["Offer and Acceptance", "Consideration and Intention to Create Legal Relations", "Terms of a Contract", "Breach and Discharge", "Remedies for Breach of Contract"],
+                pages: [
+                    { eyebrow: "Cover", title: "Contract Law — 9th Edition", body: "A core text on how contracts are formed, interpreted and enforced, with an emphasis on leading case law." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition builds from the basic requirements of a valid contract through to complex issues of breach and remedy, illustrated throughout with landmark cases." },
+                    { eyebrow: "Chapter 2", title: "Consideration and Intention", body: "Consideration is something of value exchanged between the parties to a contract; without it, and without an intention to create legal relations, an agreement generally cannot be enforced as a contract." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. What are the essential elements of a valid offer?\n2. Why is consideration required for a contract to be enforceable?\n3. Distinguish between a condition and a warranty in contract terms." }
+                ]
+            },
+            "criminal-family-law": {
+                title: "Criminal and Family Law", author: "Justice Meera Kapoor", cover: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&h=300&fit=crop",
+                serial: "LAW-BK-403", isbn: "978-0-406-98765-1", edition: "4th Edition", year: "2023", publisher: "LexisNexis",
+                language: "English", genre: "Law", shelf: "Shelf 9, Row C", total: 3, available: 3, status: "Available for Issue",
+                abstract: "Combines core principles of criminal liability and defenses with family law topics such as marriage, divorce and child custody.",
+                toc: ["Elements of a Crime: Actus Reus and Mens Rea", "Defenses to Criminal Liability", "Marriage and Divorce Law", "Child Custody and Maintenance", "Domestic Violence and Protective Orders"],
+                pages: [
+                    { eyebrow: "Cover", title: "Criminal and Family Law — 4th Edition", body: "A combined text covering the foundations of criminal liability alongside key areas of family law." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition pairs two closely related fields, showing how criminal law and family law intersect in matters such as domestic violence and child protection." },
+                    { eyebrow: "Chapter 1", title: "Elements of a Crime", body: "A crime generally requires both a guilty act (actus reus) and a guilty mind (mens rea); the prosecution must prove both elements beyond reasonable doubt for a conviction to stand." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Explain the difference between actus reus and mens rea.\n2. What factors do courts consider in child custody decisions?\n3. Describe the grounds on which a marriage may be dissolved." }
+                ]
+            },
+            "constitutional-law": {
+                title: "Constitutional and General Law", author: "Prof. Nathaniel Cross", cover: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=300&fit=crop",
+                serial: "LAW-BK-404", isbn: "978-0-19-965432-8", edition: "8th Edition", year: "2024", publisher: "Cambridge University Press",
+                language: "English", genre: "Law", shelf: "Shelf 9, Row D", total: 6, available: 0, status: "Out of Stock",
+                abstract: "Introduces constitutional principles including separation of powers, fundamental rights, judicial review, and the structure of government.",
+                toc: ["Separation of Powers", "Fundamental Rights and Duties", "Judicial Review", "Structure and Functions of Government", "Amendment of the Constitution"],
+                pages: [
+                    { eyebrow: "Cover", title: "Constitutional Law — 8th Edition", body: "A foundational text on constitutional principles, government structure and the protection of fundamental rights." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition explains how constitutions allocate power between branches of government and safeguard individual rights through mechanisms such as judicial review." },
+                    { eyebrow: "Chapter 3", title: "Judicial Review", body: "Judicial review allows courts to examine whether legislative or executive action is consistent with the constitution, acting as a check on the other branches of government." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. What is the purpose of separating legislative, executive and judicial powers?\n2. How does judicial review act as a check on government power?\n3. Name two fundamental rights typically protected by a constitution." }
+                ]
+            },
+            "os-concepts": {
+                title: "Operating System Concepts", author: "Abraham Silberschatz", cover: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop",
+                serial: "CSE-BK-101", isbn: "978-1-118-06333-0", edition: "7th Edition", year: "2024", publisher: "Wiley",
+                language: "English", genre: "Computer Science", shelf: "Shelf 4, Row B", total: 5, available: 5, status: "Available for Issue",
+                abstract: "Comprehensive study of operating system principles, process synchronization, memory management, and file systems architecture.",
+                toc: ["Introduction to Operating Systems (System Structures, Operations)", "System Calls & Structure", "Process Management & CPU Scheduling", "Memory Management Strategies (Paging, Segmentation)", "Virtual Memory & File-System Interface"],
+                pages: [
+                    { eyebrow: "Cover", title: "Operating System Concepts — 7th Edition", body: "A foundational text covering process management, memory management and file systems, prepared for undergraduate computer science courses." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition explores how an operating system mediates between hardware resources and user programs, with updated coverage of multicore scheduling and virtualization." },
+                    { eyebrow: "Chapter 1", title: "What Operating Systems Do", body: "An operating system manages hardware resources and provides a consistent interface for application programs, handling tasks such as process scheduling, memory allocation and device management." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. What are the three main purposes of an operating system?\n2. Describe the difference between a process and a thread.\n3. Explain how paging reduces external fragmentation." }
+                ]
+            },
+            "ds-cpp": {
+                title: "Data Structures in C++", author: "D.S. Malik", cover: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop",
+                serial: "CSE-BK-102", isbn: "978-1-285-85275-5", edition: "5th Edition", year: "2023", publisher: "Cengage Learning",
+                language: "English", genre: "Programming", shelf: "Shelf 4, Row C", total: 4, available: 0, status: "Currently Unavailable",
+                abstract: "A structured introduction to arrays, linked lists, stacks, queues, trees and graphs, implemented using C++.",
+                toc: ["Arrays and Strings", "Linked Lists", "Stacks and Queues", "Recursion and Trees", "Graphs and Sorting Algorithms"],
+                pages: [
+                    { eyebrow: "Cover", title: "Data Structures in C++ — 5th Edition", body: "Covers core data structures with C++ implementations, algorithmic complexity, and practice exercises for each topic." },
+                    { eyebrow: "Preface", title: "About This Book", body: "Written for students learning data structures for the first time, this book builds from arrays and linked lists up to trees and graphs." },
+                    { eyebrow: "Chapter 2", title: "Linked Lists", body: "A linked list is a linear collection of nodes where each node stores data and a reference to the next node, allowing efficient insertion and deletion compared to arrays." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Compare the time complexity of insertion in an array versus a linked list.\n2. What is a doubly linked list?\n3. Write pseudocode to reverse a singly linked list." }
+                ]
+            },
+            "clean-code": {
+                title: "Clean Code", author: "Robert C. Martin", cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop",
+                serial: "CSE-BK-103", isbn: "978-0-13-235088-4", edition: "1st Edition", year: "2021", publisher: "Prentice Hall",
+                language: "English", genre: "Software Engineering", shelf: "Shelf 4, Row D", total: 3, available: 2, status: "Available for Issue",
+                abstract: "Practical guidance on writing readable, maintainable code through naming conventions, function design and refactoring practices.",
+                toc: ["Meaningful Names", "Functions", "Comments and Formatting", "Error Handling", "Unit Tests and Refactoring"],
+                pages: [
+                    { eyebrow: "Cover", title: "Clean Code — 1st Edition", body: "A practical handbook of software craftsmanship, focused on writing code that is easy to read, test and maintain." },
+                    { eyebrow: "Preface", title: "Why Clean Code Matters", body: "Code is read far more often than it is written. This book argues that disciplined naming, small functions and continual refactoring are what separate maintainable software from technical debt." },
+                    { eyebrow: "Chapter 2", title: "Meaningful Names", body: "Choosing names that reveal intent reduces the mental effort needed to understand code. A variable, function or class name should answer why it exists and what it does." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Why should function names describe a single action?\n2. What makes a comment necessary versus redundant?\n3. Give an example of a name that hides its intent." }
+                ]
+            },
+            "ai-book": {
+                title: "Artificial Intelligence", author: "Peter Norvig", cover: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&h=300&fit=crop",
+                serial: "CSE-BK-104", isbn: "978-0-13-604259-4", edition: "4th Edition", year: "2022", publisher: "Pearson",
+                language: "English", genre: "Computer Science", shelf: "Shelf 5, Row A", total: 4, available: 4, status: "Available for Issue",
+                abstract: "A broad survey of artificial intelligence, covering search algorithms, knowledge representation, machine learning and reasoning under uncertainty.",
+                toc: ["Intelligent Agents", "Search Strategies", "Knowledge Representation and Logic", "Machine Learning Fundamentals", "Reasoning Under Uncertainty"],
+                pages: [
+                    { eyebrow: "Cover", title: "Artificial Intelligence — 4th Edition", body: "A comprehensive introduction to AI, from classical search and logic to modern machine learning approaches." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition presents AI as the study of agents that perceive their environment and act to achieve goals, unifying search, logic, probability and learning under one framework." },
+                    { eyebrow: "Chapter 3", title: "Search Strategies", body: "Uninformed search explores a problem space without extra information, while informed search uses heuristics to estimate the cost to reach a goal, improving efficiency significantly." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Compare breadth-first and depth-first search.\n2. What role does a heuristic function play in A* search?\n3. Give an example of an intelligent agent and its environment." }
+                ]
+            },
+            "mgmt": {
+                title: "Principles of Management", author: "Harold Koontz", cover: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop",
+                serial: "BBA-BK-201", isbn: "978-93-392-2266-7", edition: "10th Edition", year: "2023", publisher: "McGraw Hill",
+                language: "English", genre: "Business Administration", shelf: "Shelf 8, Row A", total: 6, available: 6, status: "Available for Issue",
+                abstract: "An introduction to the core functions of management: planning, organizing, staffing, leading and controlling within an organization.",
+                toc: ["Nature and Scope of Management", "Planning and Decision Making", "Organizing and Staffing", "Leading and Motivation", "Controlling Organizational Performance"],
+                pages: [
+                    { eyebrow: "Cover", title: "Principles of Management — 10th Edition", body: "Explains the five core functions of management and how they apply across different types of organizations." },
+                    { eyebrow: "Preface", title: "About This Book", body: "Management is presented as a universal process of getting work done through people, applicable to businesses, non-profits and government agencies alike." },
+                    { eyebrow: "Chapter 2", title: "Planning and Decision Making", body: "Planning involves setting objectives and determining the course of action needed to achieve them, forming the foundation on which organizing, staffing and controlling are built." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. What distinguishes strategic planning from operational planning?\n2. List the steps in the rational decision-making process.\n3. Why is planning considered the primary management function?" }
+                ]
+            },
+            "accounting": {
+                title: "Financial Accounting", author: "Jerry Weygandt", cover: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&h=300&fit=crop",
+                serial: "BBA-BK-203", isbn: "978-1-119-49338-4", edition: "11th Edition", year: "2023", publisher: "Wiley",
+                language: "English", genre: "Business Administration", shelf: "Shelf 8, Row C", total: 3, available: 3, status: "Available for Issue",
+                abstract: "Introduces the accounting cycle, financial statements, and the principles used to record and report business transactions.",
+                toc: ["The Accounting Information System", "Recording Business Transactions", "Adjusting Entries and the Trial Balance", "Preparing Financial Statements", "Accounting for Receivables and Inventory"],
+                pages: [
+                    { eyebrow: "Cover", title: "Financial Accounting — 11th Edition", body: "Builds a working understanding of how business transactions are recorded, adjusted and reported in financial statements." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition walks through the full accounting cycle, from journal entries to the preparation of the balance sheet and income statement." },
+                    { eyebrow: "Chapter 3", title: "Adjusting Entries and the Trial Balance", body: "Adjusting entries update account balances at the end of a period so that revenues and expenses are recognized in the period they occur, ensuring accurate financial statements." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Why are adjusting entries necessary?\n2. Explain the difference between accrued and deferred revenue.\n3. What is the purpose of a trial balance?" }
+                ]
+            },
+            "org-behavior": {
+                title: "Organizational Behavior", author: "Stephen Robbins", cover: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=300&fit=crop",
+                serial: "BBA-BK-204", isbn: "978-93-325-8452-5", edition: "18th Edition", year: "2023", publisher: "Pearson",
+                language: "English", genre: "Business Administration", shelf: "Shelf 8, Row D", total: 5, available: 5, status: "Available for Issue",
+                abstract: "Examines how individuals, groups and organizational structure affect behavior within organizations, and how that knowledge improves effectiveness.",
+                toc: ["Foundations of Individual Behavior", "Motivation Concepts and Applications", "Group Dynamics and Teamwork", "Leadership Theories", "Organizational Culture and Change"],
+                pages: [
+                    { eyebrow: "Cover", title: "Organizational Behavior — 18th Edition", body: "Studies how individuals and groups behave within organizations, and how that behavior can be understood and improved." },
+                    { eyebrow: "Preface", title: "About This Book", body: "This edition connects behavioral theory with real workplace scenarios, covering motivation, leadership, teams and organizational culture." },
+                    { eyebrow: "Chapter 2", title: "Motivation Concepts", body: "Motivation is the set of processes that account for an individual's intensity, direction and persistence of effort toward attaining a goal, shaped by both internal needs and external incentives." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "1. Compare Maslow's hierarchy of needs with Herzberg's two-factor theory.\n2. What distinguishes a group from a team?\n3. How does organizational culture influence employee behavior?" }
+                ]
+            },
+            "default-book": {
+                title: "Library Subject Book", author: "Various Authors", cover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=300&fit=crop",
+                serial: "LIB-BK-000", isbn: "978-0-000-00000-0", edition: "Latest Edition", year: "2023", publisher: "Default Publisher",
+                language: "English", genre: "General", shelf: "Shelf 1, Row A", total: 0, available: 0, status: "Currently Unavailable",
+                abstract: "A default library placeholder for catalog items missing explicit metadata.",
+                toc: ["Introduction", "Core Chapter", "Exercises"],
+                pages: [
+                    { eyebrow: "Cover", title: "Library Subject Book", body: "Standard placeholder." },
+                    { eyebrow: "Preface", title: "About This Book", body: "Standard placeholder description." },
+                    { eyebrow: "Chapter 1", title: "Introduction", body: "Standard placeholder content." },
+                    { eyebrow: "Review", title: "End-of-Chapter Questions", body: "Standard placeholder exercises." }
+                ]
+            }
+        };
+
+        let currentBookKey = "os-concepts";
+        let currentPageIndex = 0;
+
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const previewContainer = document.getElementById('previewContentContainer');
+        const pageIndicator = document.getElementById('previewPageIndicator');
+
+        function populateBookModal(key) {
+            const book = libraryBooks[key] || libraryBooks["default-book"];
+            currentBookKey = libraryBooks[key] ? key : "default-book";
+            currentPageIndex = 0;
+
+            const coverImg = document.getElementById('modalBookCover');
+            
+            coverImg.onerror = function() {
+                this.onerror = null;
+                this.src = "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop"; 
+            };
+            coverImg.src = book.cover;
+
+            document.getElementById('modalBookTitle').innerText = book.title;
+            document.getElementById('modalBookAuthor').innerText = book.author;
+            document.getElementById('modalSerialNo').innerText = book.serial;
+            document.getElementById('modalIsbn').innerText = book.isbn;
+            document.getElementById('modalEdition').innerText = book.edition;
+            document.getElementById('modalYear').innerText = book.year;
+            document.getElementById('modalPublisher').innerText = book.publisher;
+            document.getElementById('modalLanguage').innerText = book.language;
+            document.getElementById('modalGenre').innerText = book.genre;
+            document.getElementById('modalShelf').innerText = book.shelf;
+            document.getElementById('modalTotalCopies').innerText = book.total;
+            document.getElementById('modalAvailableCopies').innerText = book.available;
+            document.getElementById('modalStatus').innerText = book.status;
+            document.getElementById('modalAbstract').innerText = book.abstract;
+
+            document.getElementById('modalToc').innerHTML = book.toc.map((item, i) =>
+                `<li><strong>Chapter ${i + 1}:</strong> ${item}</li>`
+            ).join('');
+
+            const requestBtn = document.getElementById('requestBorrowBtn');
+            if (book.available === 0) {
+                requestBtn.disabled = true;
+                requestBtn.classList.replace('btn-primary', 'btn-secondary');
+                requestBtn.innerText = "Currently Unavailable";
+            } else {
+                requestBtn.disabled = false;
+                requestBtn.classList.replace('btn-secondary', 'btn-primary');
+                requestBtn.innerText = "Request to Borrow";
+            }
+
+            updatePreviewPane();
+        }
+
+        function updatePreviewPane() {
+            const book = libraryBooks[currentBookKey];
+            const page = book.pages[currentPageIndex];
+
+            if (currentPageIndex === 0) {
+                previewContainer.innerHTML = `
+                    <div class="book-cover-page" style="background-image: url('${book.cover}');">
+                        <div class="book-cover-overlay">
+                            <span class="book-cover-badge">${book.genre}</span>
+                            <div class="book-cover-title">${book.title}</div>
+                            <div class="book-cover-author">By ${book.author}</div>
+                            <span class="book-cover-edition">${book.edition}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const bodyHtml = page.body.split('\n').map(line => `<p class="mb-2">${line}</p>`).join('');
+                previewContainer.innerHTML = `
+                    <div class="book-page-frame">
+                        <div class="book-page-corner-tr"></div>
+                        <div class="book-page-corner-bl"></div>
+                        <div class="book-page-eyebrow">${page.eyebrow}</div>
+                        <div class="book-page-title">${page.title}</div>
+                        <div class="book-page-rule"></div>
+                        <div class="book-page-body">${bodyHtml}</div>
+                        <div class="book-page-footer">${book.title} · Page ${currentPageIndex} of ${book.pages.length - 1}</div>
+                    </div>
+                `;
+            }
+
+            pageIndicator.innerText = currentPageIndex === 0 ? "Cover Page" : `Page ${currentPageIndex}`;
+
+            prevBtn.disabled = currentPageIndex === 0;
+            nextBtn.disabled = currentPageIndex === book.pages.length - 1;
+        }
+
+        prevBtn.addEventListener('click', function() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                updatePreviewPane();
+            }
+        });
+
+        nextBtn.addEventListener('click', function() {
+            const book = libraryBooks[currentBookKey];
+            if (currentPageIndex < book.pages.length - 1) {
+                currentPageIndex++;
+                updatePreviewPane();
+            }
+        });
+        
+        document.getElementById('bookDetailsModal').addEventListener('show.bs.modal', function (event) {
+            const trigger = event.relatedTarget;
+            const key = trigger ? trigger.getAttribute('data-book-id') : null;
+            populateBookModal(key || "os-concepts");
+        });
+
+        // --- Custom Payment System Logic ---
+        const paymentMerchants = { bkash:"01700-123456 (bKash Merchant)", nagad:"01600-654321 (Nagad Merchant)" };
+        
+        function selectPaymentMethod(id){
+            document.querySelectorAll(".payment-method").forEach(b =>
+                b.setAttribute("aria-pressed", b.dataset.id === id));
+            document.getElementById("merchant").value = paymentMerchants[id];
+        }
+
+        function processPayment(e){
+            e.preventDefault();
+            const amountInput = document.getElementById("amount");
+            const amount = parseFloat(amountInput.value);
+
+            if (!amount || amount <= 0) {
+                amountInput.focus();
+                return alert("Please enter a valid payment amount.");
+            }
+
+            const pin = document.getElementById("pin").value;
+            if (pin.length < 4) return alert("Enter your 4-5 digit wallet PIN.");
+            
+            const method = document.querySelector('.payment-method[aria-pressed="true"]').dataset.id;
+            alert(`Tk ${amount} paid successfully via ${method === "bkash" ? "bKash" : "Nagad"}!`);
+            
+            document.getElementById("pin").value = "";
+            document.getElementById("amount").value = "";
+            
+            const paymentModalElement = document.getElementById('paymentModal');
+            const modalInstance = bootstrap.Modal.getInstance(paymentModalElement) || new bootstrap.Modal(paymentModalElement);
+            modalInstance.hide();
+        }
+    </script>
+</body>
+</html>

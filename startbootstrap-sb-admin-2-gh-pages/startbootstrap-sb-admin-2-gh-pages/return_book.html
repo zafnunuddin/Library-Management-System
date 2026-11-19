@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library LMS - Process Return</title>
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-arrow-left mr-2"></i>Admin Dashboard: Process Return Form</h6>
+            </div>
+            <div class="card-body">
+                <form action="#" method="POST">
+                    
+                    <div class="row">
+                        <!-- Member Name -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Borrower's Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter member name" required>
+                        </div>
+                        
+                        <!-- Book Genre -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Book Genre</label>
+                            <input type="text" name="genre" class="form-control" placeholder="Book category" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Book Edition -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Book Edition</label>
+                            <input type="text" name="edition" class="form-control" placeholder="Edition data" readonly>
+                        </div>
+
+                        <!-- Return Date -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Actual Return Date</label>
+                            <input type="date" name="return_date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center">
+                        <!-- Fine Amount Display -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label font-weight-bold text-danger">Fine Calculation Amount (৳)</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-danger text-white">৳</span>
+                                </div>
+                                <input type="number" name="fine_amount" class="form-control text-danger font-weight-bold" value="0" min="0" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <!-- Circulation Status Option Toggle -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label font-weight-bold text-black">Circulation Status Change</label>
+                            <select name="status" class="form-control font-weight-bold text-primary" required>
+                                <option value="borrow" disabled>Currently Borrowed</option>
+                                <option value="return" selected>Process Return (Quantity + 1)</option>
+                            </select>
+                        </div>
+
+                        <!-- Optional Book Condition Photo Proof -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label font-weight-bold text-black">Upload Damaged Book Photo (Optional)</label>
+                            <input type="file" name="photo" class="form-control-file" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Admin Special Notice/Message -->
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label font-weight-bold text-black">Administrative Notice / Penalty Notes</label>
+                            <textarea name="notice" class="form-control" rows="3" placeholder="Type structural comments regarding return delay or book health notes..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="text-right border-top pt-3">
+                        <a href="index.html" class="btn btn-secondary mr-2"><i class="fas fa-times mr-1"></i>Cancel</a>
+                        <button type="submit" class="btn btn-danger px-4"><i class="fas fa-undo mr-1"></i>Process & Update Inventory</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - All Book List</title>
+    <!-- Bootstrap CSS (LMS Admin এর জন্য প্রয়োজনীয় CSS লিংক) -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body id="page-top">
+
+    <div id="wrapper">
+        <!-- এখানে আপনার অ্যাডমিন প্যানেলের সাইডবার (Sidebar) থাকবে -->
+        
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content" class="container-fluid mt-4">
+                
+                <!-- পেজের শিরোনাম -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">📚 All Book List (সব বইয়ের তালিকা)</h1>
+                    <a href="add_book.html" class="btn btn-primary btn-sm shadow-sm">
+                        <i class="fas fa-plus fa-sm text-white-50"></i> Add New Book
+                    </a>
+                </div>
+
+                <!-- বইয়ের তালিকা টেবিল কার্ড -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Library Inventory</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead class="bg-light text-black">
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Title (নাম)</th>
+                                        <th>Author (লেখক)</th>
+                                        <th>Genre (ক্যাটাগরি)</th>
+                                        <th>Edition</th>
+                                        <th>Quantity (সংখ্যা)</th>
+                                        <th>Upload Time</th>
+                                        <th>Action (কাজ)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- ১ম ডামি বই (স্যাম্পল দেখার জন্য) -->
+                                    <tr>
+                                        <td><img src="https://placeholder.com" alt="Book Cover" class="img-thumbnail" style="width: 50px;"></td>
+                                        <td><strong>Himu Remixed</strong></td>
+                                        <td>Humayun Ahmed</td>
+                                        <td>Fiction</td>
+                                        <td>New Edition (2nd)</td>
+                                        <td><span class="badge badge-success">15 Copies</span></td>
+                                        <td>2026-06-28 10:30 AM</td>
+                                        <td>
+                                            <!-- এডিট ডিটেইলস বাটন -->
+                                            <a href="#" class="btn btn-info btn-sm" title="Edit Details">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- ২য় ডামি বই -->
+                                    <tr>
+                                        <td><img src="https://placeholder.com" alt="Book Cover" class="img-thumbnail" style="width: 50px;"></td>
+                                        <td><strong>Learn PHP Basics</strong></td>
+                                        <td>Tamim Shahriar</td>
+                                        <td>Programming</td>
+                                        <td>Past Edition (1st)</td>
+                                        <td><span class="badge badge-warning">3 Copies</span></td>
+                                        <td>2026-06-25 04:15 PM</td>
+                                        <td>
+                                            <a href="#" class="btn btn-info btn-sm" title="Edit Details">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="js/sb-admin-2.min.js"></script>
+</body>
+</html>

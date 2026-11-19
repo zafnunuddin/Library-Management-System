@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library LMS - Issue Book</title>
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-success text-white">
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-arrow-right mr-2"></i>Circulation System: Issue Book Form</h6>
+            </div>
+            <div class="card-body">
+                <form action="#" method="POST">
+                    
+                    <div class="row">
+                        <!-- Select Registered User -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Select Member (User Login ID)</label>
+                            <select name="user_id" class="form-control" required>
+                                <option value="" selected disabled>Select member email or ID</option>
+                                <option value="1">zafnun@library.com (Zafnun)</option>
+                                <option value="2">shawon@library.com (Shawon)</option>
+                                <option value="3">tonmoy@library.com (Tonmoy)</option>
+                                <option value="4">tamzida@library.com (Tamzida)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Select Book Genre Dropdown -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Filter by Genre</label>
+                            <select name="genre" class="form-control" required>
+                                <option value="" selected disabled>Select book category</option>
+                                <option value="Programming">Programming</option>
+                                <option value="Database">Database</option>
+                                <option value="Mathematics">Mathematics</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Select Book Title -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Select Book Title</label>
+                            <select name="book_id" class="form-control" required>
+                                <option value="" selected disabled>Choose available book</option>
+                                <option value="101">Laravel for Beginners (Edition: 3rd)</option>
+                                <option value="102">MySQL Database Core (Edition: Global)</option>
+                            </select>
+                        </div>
+
+                        <!-- Book Edition Display (Automatic or Selection) -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Book Edition</label>
+                            <input type="text" name="edition" class="form-control" placeholder="Edition version auto-loads here" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Issue Date Calendar Selection -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Issue Date</label>
+                            <input type="date" name="issue_date" class="form-control" required>
+                        </div>
+
+                        <!-- Return Date Calendar Selection (Duration) -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold text-black">Return Deadline (Duration from Calendar)</label>
+                            <input type="date" name="return_date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="text-right border-top pt-3">
+                        <a href="index.html" class="btn btn-secondary mr-2"><i class="fas fa-times mr-1"></i>Cancel</a>
+                        <button type="submit" class="btn btn-success px-4"><i class="fas fa-check mr-1"></i>Confirm Issue</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
